@@ -1,0 +1,40 @@
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Login from './pages/Login';
+import Quotes from './pages/Quotes';
+import AuthGuard from './components/AuthGuard';
+import GalleryAdmin from './pages/GalleryAdmin'; // ⬅️ ajoute cet import
+
+const App: React.FC = () => {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+
+        {/* Protège la route /quotes */}
+        <Route
+          path="/quotes"
+          element={
+            <AuthGuard>
+              <Quotes />
+            </AuthGuard>
+          }
+        />
+
+        {/* Ajoute la route protégée pour la galerie */}
+        <Route
+          path="/gallery"
+          element={
+            <AuthGuard>
+              <GalleryAdmin />
+            </AuthGuard>
+          }
+        />
+
+        <Route path="*" element={<Navigate to="/login" />} />
+      </Routes>
+    </BrowserRouter>
+  );
+};
+
+export default App;
