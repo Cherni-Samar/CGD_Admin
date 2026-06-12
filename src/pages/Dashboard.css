@@ -448,3 +448,125 @@ html, body, #root {
   height: 100%;
   object-fit: cover;
 }
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 99999;
+
+  pointer-events: auto;
+}
+
+/* Modal box */
+.modal {
+  width: 650px;
+  max-width: 92%;
+  background: #111827;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6);
+
+  overflow: hidden;
+
+  animation: popIn 0.18s ease-out;
+}
+
+/* Header */
+.modal-header {
+  padding: 18px 22px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.modal-header p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+/* Body */
+.modal-body {
+  padding: 22px;
+  display: flex;
+  justify-content: center;
+}
+
+.modal-body img {
+  width: 100%;
+  max-height: 420px;
+  object-fit: contain;
+
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Footer */
+.modal-footer {
+  padding: 18px 22px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Buttons */
+.btn {
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: 0.2s;
+}
+
+.btn-cancel {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #d1d5db;
+}
+
+.btn-cancel:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.btn-confirm {
+  background: #1fd8c8;
+  color: #081018;
+  box-shadow: 0 10px 25px rgba(31, 216, 200, 0.3);
+}
+
+.btn-confirm:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 30px rgba(31, 216, 200, 0.4);
+}
+
+/* Animation */
+@keyframes popIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

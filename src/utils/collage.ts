@@ -1,4 +1,4 @@
-const createCollage = (before: File, after: File): Promise<File> => {
+export const createCollage = (before: File, after: File): Promise<File> => {
   return new Promise((resolve, reject) => {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
