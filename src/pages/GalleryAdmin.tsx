@@ -348,7 +348,7 @@ const ImageCard = ({
         style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }}
       />
 
-     
+
 
       {/* Hover overlay */}
       <div style={{
@@ -737,12 +737,6 @@ const EmptyState = ({ label }: { label: string }) => (
     color: "#3d4252",
     minHeight: 140,
   }}>
-    <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-      <rect x="4" y="8" width="28" height="22" rx="3" stroke="currentColor" strokeWidth="1.5" />
-      <circle cx="13" cy="16" r="3" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M4 24l7-5 6 5 5-4 6 5" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-    </svg>
-    <span style={{ fontSize: 13, fontWeight: 500 }}>No {label} photos yet</span>
   </div>
 );
 
@@ -760,6 +754,9 @@ const GalleryAdmin: React.FC = () => {
   const [editImg, setEditImg] = useState<GalleryImg | null>(null);
   const [deleteImg, setDeleteImg] = useState<GalleryImg | null>(null);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [collagePreview, setCollagePreview] = useState<string | null>(null);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [pendingCollageFile, setPendingCollageFile] = useState<File | null>(null);
 
 
   const [theme, setTheme] = useState<"dark" | "light">(
@@ -789,19 +786,39 @@ const GalleryAdmin: React.FC = () => {
   };
   useEffect(() => { fetchGallery(); }, []);
 
+
   // ── Upload
   const handleUploadPair = async () => {
     if (!beforeFile || !afterFile) return;
 
-    setUploading(true);
-
     try {
-      // 1. créer collage
+      setUploading(true);
+
       const collageFile = await createCollage(beforeFile, afterFile);
 
-      // 2. envoyer UNE seule image
+      // 🔥 Preview uniquement (PAS upload encore)
+      const previewUrl = URL.createObjectURL(collageFile);
+      setCollagePreview(previewUrl);
+
+      setPendingCollageFile(collageFile);
+      setShowConfirm(true); // 👈 ouvre confirm modal
+
+    } catch (e) {
+      showToast("Collage failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // -- confirm upload 
+  const confirmUpload = async () => {
+    if (!pendingCollageFile) return;
+
+    try {
+      setUploading(true);
+
       const formData = new FormData();
-      formData.append("file", collageFile);
+      formData.append("file", pendingCollageFile);
 
       const res = await fetch(`${API_URL}/gallery/upload`, {
         method: "POST",
@@ -815,17 +832,27 @@ const GalleryAdmin: React.FC = () => {
 
       await fetchGallery();
 
+      // reset
       setBeforeFile(null);
       setAfterFile(null);
+      setCollagePreview(null);
+      setPendingCollageFile(null);
+      setShowConfirm(false);
 
-      showToast("Collage uploaded successfully!");
-    } catch (e) {
+      showToast("Collage uploaded!");
+    } catch {
       showToast("Upload failed");
     } finally {
       setUploading(false);
     }
   };
 
+  // -- cancel upload 
+  const cancelUpload = () => {
+    setShowConfirm(false);
+    setPendingCollageFile(null);
+    setCollagePreview(null);
+  };
   // ── Delete
   const handleDelete = async (img: GalleryImg) => {
     setDeleteImg(null);
@@ -947,108 +974,7 @@ const GalleryAdmin: React.FC = () => {
                 flexWrap: "wrap",
               }}
             >
-              {/* 🔥 AUTO COLLAGE SECTION */}
-              <div style={{ marginBottom: 40 }}>
-                <SectionHeader
-                  label="AUTO COLLAGE"
-                  count={pairedImages.length}
-                  color="#7c5cff"
-                />
-
-                {pairedImages.length === 0 ? (
-                  <EmptyState label="collage" />
-                ) : (
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
-                      gap: 16,
-                    }}
-                  >
-                    {pairedImages.map((pair, i) => (
-                      <div
-                        key={i}
-                        style={{
-                          display: "flex",
-                          borderRadius: 14,
-                          overflow: "hidden",
-                          border: "1px solid #ffffff10",
-                        }}
-                      >
-                        {/* BEFORE */}
-                        <div style={{ flex: 1, position: "relative" }}>
-                          <div
-                            style={{
-                              position: "absolute",
-                              top: 8,
-                              left: 8,
-                              fontSize: 10,
-                              fontWeight: 800,
-                              color: "#e85d3a",
-                              background: "#e85d3a22",
-                              padding: "3px 8px",
-                              borderRadius: 20,
-                            }}
-                          >
-                            BEFORE
-                          </div>
-
-                          <img
-                            src={`http://localhost:3001${pair.before.url}`}
-                            style={{
-                              width: "100%",
-                              height: 220,
-                              objectFit: "cover",
-                            }}
-                          />
-                        </div>
-
-                        {/* AFTER */}
-                        <div style={{ flex: 1, position: "relative" }}>
-                          <div
-                            style={{
-                              position: "absolute",
-                              top: 8,
-                              left: 8,
-                              fontSize: 10,
-                              fontWeight: 800,
-                              color: "#1FD8C8",
-                              background: "#1FD8C822",
-                              padding: "3px 8px",
-                              borderRadius: 20,
-                            }}
-                          >
-                            AFTER
-                          </div>
-
-                          {pair.after ? (
-                            <img
-                              src={`http://localhost:3001${pair.after.url}`}
-                              style={{
-                                width: "100%",
-                                height: 220,
-                                objectFit: "cover",
-                              }}
-                            />
-                          ) : (
-                            <div
-                              style={{
-                                height: 220,
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                color: "#777",
-                              }}
-                            >
-                              No after image
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+             
               <UploadZone
                 label={beforeFile ? beforeFile.name : "Select BEFORE"}
                 color="#e85d3a"
@@ -1100,67 +1026,7 @@ const GalleryAdmin: React.FC = () => {
             </div>
           </div>
 
-          {/* ── Divider */}
-          <div style={{ height: 1, background: "#ffffff0a", marginBottom: 32 }} />
-
-          {/* ── Before / After side-by-side */}
-          <div style={{ display: "flex", gap: 36, flexWrap: "wrap", alignItems: "flex-start" }}>
-            {/* BEFORE */}
-            <div style={{ flex: 1, minWidth: 300 }}>
-              <SectionHeader label="BEFORE" count={beforeImages.length} color="#e85d3a" />
-              {beforeImages.length === 0 ? (
-                <EmptyState label="before" />
-              ) : (
-                <div style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-                  gap: "14px",
-                }}>
-                  {beforeImages.map((img, i) => (
-                    <ImageCard
-                      key={img.url + "before" + i}
-                      img={img}
-                      onDelete={setDeleteImg}
-                      onEdit={setEditImg}
-                      onPreview={setPreviewImg}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Vertical divider */}
-            <div style={{
-              width: 1, background: "#ffffff08",
-              alignSelf: "stretch", minHeight: 200,
-              flexShrink: 0,
-            }} />
-
-            {/* AFTER */}
-            <div style={{ flex: 1, minWidth: 300 }}>
-              <SectionHeader label="AFTER" count={afterImages.length} color="#1FD8C8" />
-              {afterImages.length === 0 ? (
-                <EmptyState label="after" />
-              ) : (
-                <div style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-                  gap: "14px",
-                }}>
-                  {afterImages.map((img, i) => (
-                    <ImageCard
-                      key={img.url + "after" + i}
-                      img={img}
-                      onDelete={setDeleteImg}
-                      onEdit={setEditImg}
-                      onPreview={setPreviewImg}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
+          
           {/* ── Unsorted */}
           {noTypeImages.length > 0 && (
             <div style={{ marginTop: 44 }}>
@@ -1225,9 +1091,73 @@ const GalleryAdmin: React.FC = () => {
         @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
       `}</style>
+
+      {showConfirm && collagePreview && (
+        <div style={{
+          position: "fixed",
+          inset: 0,
+          background: "rgba(0,0,0,0.85)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 9999
+        }}>
+          <div style={{
+            background: "#1a1d26",
+            padding: 20,
+            borderRadius: 14,
+            width: 520,
+            textAlign: "center"
+          }}>
+            <h3 style={{ marginBottom: 12 }}>Confirm Upload</h3>
+
+            {/* Preview */}
+            <img
+              src={collagePreview}
+              style={{
+                width: "100%",
+                borderRadius: 10,
+                marginBottom: 15
+              }}
+            />
+
+            <div style={{ display: "flex", gap: 10 }}>
+              <button
+                onClick={cancelUpload}
+                style={{
+                  flex: 1,
+                  padding: 10,
+                  borderRadius: 8,
+                  border: "1px solid #444",
+                  background: "transparent",
+                  color: "#fff"
+                }}
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={confirmUpload}
+                style={{
+                  flex: 1,
+                  padding: 10,
+                  borderRadius: 8,
+                  background: "#1FD8C8",
+                  color: "#000",
+                  fontWeight: 700,
+                  border: "none"
+                }}
+              >
+                Confirm Upload
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+
 
 
 export default GalleryAdmin;
