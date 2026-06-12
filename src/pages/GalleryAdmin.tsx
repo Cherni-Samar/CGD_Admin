@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState ,useEffect } from "react";
 import "./Dashboard.css";
 
 import { useGallery } from "../hooks/gallery/useGallery";
@@ -24,6 +24,18 @@ import type { GalleryImg } from "../types/gallery";
 const API_URL = "http://localhost:3001/api";
 
 const GalleryAdmin: React.FC = () => {
+
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  };
+
+  useEffect(() => {
+    document.body.setAttribute("data-theme", theme);
+  }, [theme]);
+
+  
   // ─────────────────────────────
   // HOOK DATA
   // ─────────────────────────────
@@ -172,13 +184,9 @@ const GalleryAdmin: React.FC = () => {
   const unsorted = images.filter((i) => !i.type);
 
 
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
-
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
-  };
+ 
   return (
-    <div className="dash-container">
+    <div className={`dash-container ${theme}`}>
 
       <Sidebar
         theme={theme}
@@ -399,3 +407,4 @@ const GalleryAdmin: React.FC = () => {
 };
 
 export default GalleryAdmin;
+
