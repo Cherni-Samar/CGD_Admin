@@ -97,9 +97,6 @@ const GalleryAdmin: React.FC = () => {
     setLoading(true);
 
     try {
-      const formData = new FormData();
-      formData.append("file", collageFile);
-
       await uploadGallery(collageFile);
       await fetchGallery();
 
