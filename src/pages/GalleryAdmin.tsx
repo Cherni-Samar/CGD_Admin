@@ -9,14 +9,14 @@ import { ImageCard } from "../components/ui/ImageCard";
 import { Sidebar } from "../components/layout/Sidebar";
 
 // modals
-import { PreviewModal,EditModal,DeleteModal} from "../components/ui/modals";
+import { PreviewModal, DeleteModal } from "../components/ui/modals";
 
 // utils
 import { createCollage } from "../utils/collage";
 import type { GalleryImg } from "../types/gallery";
 
 //services
-import { getGallery,uploadGallery,deleteImage,updateImageType } from "../services/api/galleryService";
+import { getGallery, uploadGallery, deleteImage, } from "../services/api/galleryService";
 
 const GalleryAdmin: React.FC = () => {
 
@@ -37,7 +37,7 @@ const GalleryAdmin: React.FC = () => {
   // ─────────────────────────────
   // HOOK DATA
   // ─────────────────────────────
-  const { images, fetchGallery, deleteImage, updateImageType } =
+  const { images, fetchGallery, deleteImage } =
     useGallery();
 
   // ─────────────────────────────
@@ -49,7 +49,6 @@ const GalleryAdmin: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   const [previewImg, setPreviewImg] = useState<GalleryImg | null>(null);
-  const [editImg, setEditImg] = useState<GalleryImg | null>(null);
   const [deleteImg, setDeleteImg] = useState<GalleryImg | null>(null);
 
   const [collageFile, setCollageFile] = useState<File | null>(null);
@@ -142,32 +141,10 @@ const GalleryAdmin: React.FC = () => {
   };
 
   // ─────────────────────────────
-  // UPDATE TYPE
-  // ─────────────────────────────
-  const handleEditSave = async (
-    img: GalleryImg,
-    type: "before" | "after"
-  ) => {
-    try {
-      if (img._id) {
-        await updateImageType(img._id, type);
-      }
-
-      showToast("Updated");
-      fetchGallery();
-    } catch {
-      showToast("Update error");
-    }
-
-    setEditImg(null);
-  };
-
-  // ─────────────────────────────
   // FILTERS
   // ─────────────────────────────
- 
-  const unsorted = images.filter((i) => !i.type);
 
+const galleryImages = images;  
   return (
     <div className={`dash-container ${theme}`}>
 
@@ -289,10 +266,10 @@ const GalleryAdmin: React.FC = () => {
           />
 
           {/* UNSORTED */}
-          {unsorted.length > 0 && (
+          {galleryImages.length > 0 && (
             <div style={{ marginTop: 50 }}>
               <h3 style={{ color: "#9ca3af" }}>
-                UNSORTED ({unsorted.length})
+                UNSORTED ({galleryImages.length})
               </h3>
 
               <div
@@ -303,12 +280,14 @@ const GalleryAdmin: React.FC = () => {
                   gap: 14,
                 }}
               >
-                {unsorted.map((img, i) => (
+                {galleryImages.map((img, i) => (
+                  console.log("Rendering ImageCard with URL:", `http://localhost:3001${img.url}`),
+
                   <ImageCard
                     key={img.url + i}
                     img={img}
                     onPreview={setPreviewImg}
-                    onEdit={setEditImg}
+                    
                     onDelete={setDeleteImg}
                   />
                 ))}
@@ -328,13 +307,7 @@ const GalleryAdmin: React.FC = () => {
         />
       )}
 
-      {editImg && (
-        <EditModal
-          img={editImg}
-          onClose={() => setEditImg(null)}
-          onSave={handleEditSave}
-        />
-      )}
+      
 
       {deleteImg && (
         <DeleteModal

@@ -1,7 +1,7 @@
 const API_URL = "http://localhost:3001/api";
 
 export const getGallery = async () => {
-  const res = await fetch(`${API_URL}/gallery`, {
+  const res = await fetch(`${API_URL}/gallery/getAll`, {
     headers: {
       Authorization: `Bearer ${localStorage.getItem("jwt") || ""}`,
     },
@@ -31,13 +31,3 @@ export const deleteImage = async (id: string) => {
   });
 };
 
-export const updateImageType = async (id: string, type: "before" | "after") => {
-  return fetch(`${API_URL}/gallery/${id}`, {
-    method: "PATCH",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("jwt") || ""}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ type }),
-  });
-};

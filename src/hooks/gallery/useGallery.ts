@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import {
   getGallery,
   deleteImage,
-  updateImageType,
   uploadGallery,
 } from "../../services/api/galleryService";
 
@@ -22,7 +21,6 @@ const [images, setImages] = useState<any[]>([]);
     setImages,
     fetchGallery,
     deleteImage,
-    updateImageType,
     uploadGallery,
   };
 };
