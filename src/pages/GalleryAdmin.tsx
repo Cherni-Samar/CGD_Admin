@@ -142,6 +142,95 @@ const Sidebar = ({ theme, toggleTheme }: { theme: Theme; toggleTheme: () => void
 // ─────────────────────────────────────────────
 //  UPLOAD ZONE COMPONENT
 // ─────────────────────────────────────────────
+
+const createCollage = (before: File, after: File): Promise<File> => {
+  return new Promise((resolve, reject) => {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    if (!ctx) return reject("Canvas not supported");
+
+    const beforeImg = new Image();
+    const afterImg = new Image();
+
+    beforeImg.src = URL.createObjectURL(before);
+    afterImg.src = URL.createObjectURL(after);
+
+    let loaded = 0;
+
+    const onLoad = () => {
+      loaded++;
+      if (loaded < 2) return;
+
+      // 🎯 canvas size
+      canvas.width = beforeImg.width + afterImg.width;
+      canvas.height = Math.max(beforeImg.height, afterImg.height);
+
+      // =========================
+      // LEFT IMAGE (BEFORE)
+      // =========================
+      ctx.drawImage(beforeImg, 0, 0);
+
+      // STYLE TEXT
+      ctx.font = "bold 28px Arial";
+      ctx.fillStyle = "white";
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 4;
+
+      // background label
+      ctx.fillStyle = "rgba(0,0,0,0.5)";
+      ctx.fillRect(10, 10, 160, 40);
+
+      // text
+      ctx.fillStyle = "white";
+      ctx.strokeText("BEFORE", 20, 40);
+      ctx.fillText("BEFORE", 20, 40);
+
+      // =========================
+      // RIGHT IMAGE (AFTER)
+      // =========================
+      const offsetX = beforeImg.width;
+
+      ctx.drawImage(afterImg, offsetX, 0);
+
+      ctx.fillStyle = "rgba(0,0,0,0.5)";
+      ctx.fillRect(offsetX + 10, 10, 160, 40);
+
+      ctx.fillStyle = "white";
+      ctx.strokeText("AFTER", offsetX + 20, 40);
+      ctx.fillText("AFTER", offsetX + 20, 40);
+
+      // =========================
+      // SEPARATOR LINE
+      // =========================
+      ctx.beginPath();
+      ctx.moveTo(beforeImg.width, 0);
+      ctx.lineTo(beforeImg.width, canvas.height);
+
+      ctx.strokeStyle = "white";
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      // =========================
+      // EXPORT IMAGE
+      // =========================
+      canvas.toBlob((blob) => {
+        if (!blob) return reject("Canvas empty");
+
+        const file = new File(
+          [blob],
+          `collage-${Date.now()}.jpg`,
+          { type: "image/jpeg" }
+        );
+
+        resolve(file);
+      }, "image/jpeg", 0.95);
+    };
+
+    beforeImg.onload = onLoad;
+    afterImg.onload = onLoad;
+  });
+};
 const UploadZone = ({
   label,
   color,
@@ -234,12 +323,6 @@ const ImageCard = ({
   const [hovered, setHovered] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  const badge = img.type === "before"
-    ? { label: "BEFORE", bg: "#e85d3a22", color: "#e85d3a", border: "#e85d3a44" }
-    : img.type === "after"
-      ? { label: "AFTER", bg: "#1FD8C822", color: "#1FD8C8", border: "#1FD8C844" }
-      : { label: "UNSORTED", bg: "#ffffff15", color: "#aaa", border: "#ffffff20" };
-
   return (
     <div
       onMouseEnter={() => setHovered(true)}
@@ -262,24 +345,10 @@ const ImageCard = ({
       <img
         src={`http://localhost:3001${img.url}`}
         alt={img.filename || img.type || "Gallery"}
-        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+        style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }}
       />
 
-      {/* Badge type */}
-      <div style={{
-        position: "absolute", top: 10, left: 10,
-        background: badge.bg,
-        border: `1px solid ${badge.border}`,
-        color: badge.color,
-        fontSize: 10,
-        fontWeight: 800,
-        letterSpacing: "0.08em",
-        padding: "3px 9px",
-        borderRadius: 20,
-        backdropFilter: "blur(6px)",
-      }}>
-        {badge.label}
-      </div>
+     
 
       {/* Hover overlay */}
       <div style={{
@@ -684,11 +753,14 @@ const API_URL = "http://localhost:3001/api";
 
 const GalleryAdmin: React.FC = () => {
   const [images, setImages] = useState<GalleryImg[]>([]);
-  const [uploading, setUploading] = useState<"before" | "after" | null>(null);
+  const [beforeFile, setBeforeFile] = useState<File | null>(null);
+  const [afterFile, setAfterFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
   const [previewImg, setPreviewImg] = useState<GalleryImg | null>(null);
   const [editImg, setEditImg] = useState<GalleryImg | null>(null);
   const [deleteImg, setDeleteImg] = useState<GalleryImg | null>(null);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+
 
   const [theme, setTheme] = useState<"dark" | "light">(
     () => (localStorage.getItem("cgd-theme") as "dark" | "light") || "dark"
@@ -718,29 +790,39 @@ const GalleryAdmin: React.FC = () => {
   useEffect(() => { fetchGallery(); }, []);
 
   // ── Upload
-  const handleUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-    type: "before" | "after"
-  ) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(type);
-    const form = new FormData();
-    form.append("file", file);
-    form.append("type", type);
+  const handleUploadPair = async () => {
+    if (!beforeFile || !afterFile) return;
+
+    setUploading(true);
+
     try {
+      // 1. créer collage
+      const collageFile = await createCollage(beforeFile, afterFile);
+
+      // 2. envoyer UNE seule image
+      const formData = new FormData();
+      formData.append("file", collageFile);
+
       const res = await fetch(`${API_URL}/gallery/upload`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${localStorage.getItem("jwt") || ""}` },
-        body: form,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("jwt") || ""}`,
+        },
+        body: formData,
       });
-      const { url, filename } = await res.json();
-      if (url) {
-        setImages((imgs) => [{ url, filename, type }, ...imgs]);
-        showToast(`${type === "before" ? "Before" : "After"} photo uploaded!`);
-      }
+
+      if (!res.ok) throw new Error();
+
+      await fetchGallery();
+
+      setBeforeFile(null);
+      setAfterFile(null);
+
+      showToast("Collage uploaded successfully!");
+    } catch (e) {
+      showToast("Upload failed");
     } finally {
-      setUploading(null);
+      setUploading(false);
     }
   };
 
@@ -787,6 +869,10 @@ const GalleryAdmin: React.FC = () => {
   const beforeImages = images.filter((img) => img.type === "before");
   const afterImages = images.filter((img) => img.type === "after");
   const noTypeImages = images.filter((img) => !img.type);
+  const pairedImages = beforeImages.map((before, index) => ({
+    before,
+    after: afterImages[index] || null,
+  }));
 
   return (
     <div className="dash-container">
@@ -853,20 +939,165 @@ const GalleryAdmin: React.FC = () => {
           <div style={{
             display: "flex", gap: 16, marginBottom: 36, flexWrap: "wrap",
           }}>
-            <UploadZone
-              label="+ Add BEFORE photo"
-              color="#e85d3a"
-              accent="#ffffff18"
-              uploading={uploading === "before"}
-              onChange={(e) => handleUpload(e, "before")}
-            />
-            <UploadZone
-              label="+ Add AFTER photo"
-              color="#1FD8C8"
-              accent="#ffffff18"
-              uploading={uploading === "after"}
-              onChange={(e) => handleUpload(e, "after")}
-            />
+            <div
+              style={{
+                display: "flex",
+                gap: 16,
+                marginBottom: 20,
+                flexWrap: "wrap",
+              }}
+            >
+              {/* 🔥 AUTO COLLAGE SECTION */}
+              <div style={{ marginBottom: 40 }}>
+                <SectionHeader
+                  label="AUTO COLLAGE"
+                  count={pairedImages.length}
+                  color="#7c5cff"
+                />
+
+                {pairedImages.length === 0 ? (
+                  <EmptyState label="collage" />
+                ) : (
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+                      gap: 16,
+                    }}
+                  >
+                    {pairedImages.map((pair, i) => (
+                      <div
+                        key={i}
+                        style={{
+                          display: "flex",
+                          borderRadius: 14,
+                          overflow: "hidden",
+                          border: "1px solid #ffffff10",
+                        }}
+                      >
+                        {/* BEFORE */}
+                        <div style={{ flex: 1, position: "relative" }}>
+                          <div
+                            style={{
+                              position: "absolute",
+                              top: 8,
+                              left: 8,
+                              fontSize: 10,
+                              fontWeight: 800,
+                              color: "#e85d3a",
+                              background: "#e85d3a22",
+                              padding: "3px 8px",
+                              borderRadius: 20,
+                            }}
+                          >
+                            BEFORE
+                          </div>
+
+                          <img
+                            src={`http://localhost:3001${pair.before.url}`}
+                            style={{
+                              width: "100%",
+                              height: 220,
+                              objectFit: "cover",
+                            }}
+                          />
+                        </div>
+
+                        {/* AFTER */}
+                        <div style={{ flex: 1, position: "relative" }}>
+                          <div
+                            style={{
+                              position: "absolute",
+                              top: 8,
+                              left: 8,
+                              fontSize: 10,
+                              fontWeight: 800,
+                              color: "#1FD8C8",
+                              background: "#1FD8C822",
+                              padding: "3px 8px",
+                              borderRadius: 20,
+                            }}
+                          >
+                            AFTER
+                          </div>
+
+                          {pair.after ? (
+                            <img
+                              src={`http://localhost:3001${pair.after.url}`}
+                              style={{
+                                width: "100%",
+                                height: 220,
+                                objectFit: "cover",
+                              }}
+                            />
+                          ) : (
+                            <div
+                              style={{
+                                height: 220,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                color: "#777",
+                              }}
+                            >
+                              No after image
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <UploadZone
+                label={beforeFile ? beforeFile.name : "Select BEFORE"}
+                color="#e85d3a"
+                accent="#ffffff18"
+                uploading={uploading}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setBeforeFile(file);
+                  }
+                }}
+              />
+
+              <UploadZone
+                label={afterFile ? afterFile.name : "Select AFTER"}
+                color="#1FD8C8"
+                accent="#ffffff18"
+                uploading={uploading}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setAfterFile(file);
+                  }
+                }}
+              />
+            </div>
+            <div style={{ textAlign: "center", marginBottom: 36 }}>
+              <button
+                onClick={handleUploadPair}
+                disabled={!beforeFile || !afterFile || uploading}
+                style={{
+                  padding: "12px 24px",
+                  borderRadius: 10,
+                  border: "none",
+                  background: "#1FD8C8",
+                  color: "#111",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  opacity:
+                    !beforeFile || !afterFile || uploading
+                      ? 0.5
+                      : 1,
+                }}
+              >
+                {uploading
+                  ? "Uploading..."
+                  : "Add Before / After Pair"}
+              </button>
+            </div>
           </div>
 
           {/* ── Divider */}
@@ -997,5 +1228,6 @@ const GalleryAdmin: React.FC = () => {
     </div>
   );
 };
+
 
 export default GalleryAdmin;
