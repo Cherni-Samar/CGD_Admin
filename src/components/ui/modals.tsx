@@ -39,130 +39,31 @@ export const PreviewModal = ({ img, onClose }: { img: GalleryImg; onClose: () =>
       >
         <IconClose />
       </button>
-      {img.type && (
-        <div style={{
-          position: "absolute", bottom: 16, left: "50%", transform: "translateX(-50%)",
+      <div
+        style={{
+          position: "absolute",
+          bottom: 16,
+          left: "50%",
+          transform: "translateX(-50%)",
           background: "rgba(0,0,0,0.75)",
-          color: img.type === "before" ? "#e85d3a" : "#1FD8C8",
-          fontWeight: 800, fontSize: 12, letterSpacing: "0.12em",
-          padding: "5px 16px", borderRadius: 20,
+          fontWeight: 800,
+          fontSize: 12,
+          letterSpacing: "0.12em",
+          padding: "5px 16px",
+          borderRadius: 20,
           backdropFilter: "blur(6px)",
-        }}>
-          {img.type.toUpperCase()}
-        </div>
-      )}
+          display: "flex",
+          gap: 10,
+        }}
+      >
+        <span style={{ color: "#e85d3a" }}>BEFORE</span>
+        <span style={{ opacity: 0.5 }}>|</span>
+        <span style={{ color: "#1FD8C8" }}>AFTER</span>
+      </div>
     </div>
   </div>
 );
 
-// ─────────────────────────────────────────────
-//  MODAL: EDIT / DELETE CONFIRM
-// ─────────────────────────────────────────────
-export const EditModal = ({
-  img,
-  onClose,
-  onSave,
-}: {
-  img: GalleryImg;
-  onClose: () => void;
-  onSave: (img: GalleryImg, newType: "before" | "after") => void;
-}) => {
-  const [selected, setSelected] = useState<"before" | "after">(img.type || "before");
-
-  return (
-    <div
-      onClick={onClose}
-      style={{
-        position: "fixed", inset: 0, zIndex: 1000,
-        background: "rgba(0,0,0,0.75)",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        backdropFilter: "blur(6px)",
-      }}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          background: "var(--card-bg, #1a1d26)",
-          border: "1px solid #ffffff14",
-          borderRadius: 16,
-          padding: "28px 32px",
-          width: 360,
-          boxShadow: "0 24px 60px rgba(0,0,0,0.5)",
-        }}
-      >
-        <div style={{ fontWeight: 700, fontSize: 17, marginBottom: 6 }}>Edit Photo</div>
-        <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 20 }}>
-          {img.filename || img.url}
-        </div>
-
-        {/* Preview thumb */}
-        <img
-          src={`http://localhost:3001${img.url}`}
-          alt="thumb"
-          style={{ width: "100%", height: 160, objectFit: "cover", borderRadius: 10, marginBottom: 20 }}
-        />
-
-        <div style={{ marginBottom: 20 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: "#9ca3af", marginBottom: 10, letterSpacing: "0.06em" }}>
-            PHOTO TYPE
-          </div>
-          <div style={{ display: "flex", gap: 10 }}>
-            {(["before", "after"] as const).map((t) => (
-              <button
-                key={t}
-                onClick={() => setSelected(t)}
-                style={{
-                  flex: 1,
-                  padding: "10px 0",
-                  borderRadius: 9,
-                  border: `2px solid ${selected === t
-                    ? (t === "before" ? "#e85d3a" : "#1FD8C8")
-                    : "#ffffff18"}`,
-                  background: selected === t
-                    ? (t === "before" ? "#e85d3a18" : "#1FD8C818")
-                    : "transparent",
-                  color: selected === t
-                    ? (t === "before" ? "#e85d3a" : "#1FD8C8")
-                    : "#9ca3af",
-                  fontWeight: 700,
-                  fontSize: 13,
-                  cursor: "pointer",
-                  letterSpacing: "0.06em",
-                  transition: "all 0.15s",
-                }}
-              >
-                {t.toUpperCase()}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div style={{ display: "flex", gap: 10 }}>
-          <button
-            onClick={onClose}
-            style={{
-              flex: 1, padding: "10px 0", borderRadius: 9,
-              border: "1px solid #ffffff18", background: "transparent",
-              color: "#9ca3af", fontWeight: 600, cursor: "pointer", fontSize: 13,
-            }}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={() => onSave(img, selected)}
-            style={{
-              flex: 2, padding: "10px 0", borderRadius: 9,
-              border: "none", background: "#1FD8C8",
-              color: "#0d1117", fontWeight: 700, cursor: "pointer", fontSize: 13,
-            }}
-          >
-            Save Changes
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 // ─────────────────────────────────────────────
 //  DELETE CONFIRM MODAL

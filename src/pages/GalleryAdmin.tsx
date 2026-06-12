@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Dashboard.css";
 
 import { useGallery } from "../hooks/gallery/useGallery";
@@ -9,25 +9,35 @@ import { ImageCard } from "../components/ui/ImageCard";
 import { Sidebar } from "../components/layout/Sidebar";
 
 // modals
-import {
-  PreviewModal,
-  EditModal,
-  DeleteModal,
-} from "../components/ui/modals";
+import { PreviewModal, DeleteModal } from "../components/ui/modals";
 
 // utils
 import { createCollage } from "../utils/collage";
 import type { GalleryImg } from "../types/gallery";
 
-
-
-const API_URL = "http://localhost:3001/api";
+//services
+import { getGallery, uploadGallery, deleteImage, } from "../services/api/galleryService";
 
 const GalleryAdmin: React.FC = () => {
+
+  const [theme, setTheme] = useState<"dark" | "light">(
+    () => (localStorage.getItem("theme") as "dark" | "light") || "dark"
+  );
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  };
+
+  useEffect(() => {
+    document.body.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+
+  }, [theme]);
+
+
   // ─────────────────────────────
   // HOOK DATA
   // ─────────────────────────────
-  const { images, fetchGallery, deleteImage, updateImageType } =
+  const { images, fetchGallery, deleteImage } =
     useGallery();
 
   // ─────────────────────────────
@@ -39,7 +49,6 @@ const GalleryAdmin: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   const [previewImg, setPreviewImg] = useState<GalleryImg | null>(null);
-  const [editImg, setEditImg] = useState<GalleryImg | null>(null);
   const [deleteImg, setDeleteImg] = useState<GalleryImg | null>(null);
 
   const [collageFile, setCollageFile] = useState<File | null>(null);
@@ -87,19 +96,7 @@ const GalleryAdmin: React.FC = () => {
     setLoading(true);
 
     try {
-      const formData = new FormData();
-      formData.append("file", collageFile);
-
-      const res = await fetch(`${API_URL}/gallery/upload`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("jwt") || ""}`,
-        },
-        body: formData,
-      });
-
-      if (!res.ok) throw new Error();
-
+      await uploadGallery(collageFile);
       await fetchGallery();
 
       setBeforeFile(null);
@@ -144,41 +141,12 @@ const GalleryAdmin: React.FC = () => {
   };
 
   // ─────────────────────────────
-  // UPDATE TYPE
-  // ─────────────────────────────
-  const handleEditSave = async (
-    img: GalleryImg,
-    type: "before" | "after"
-  ) => {
-    try {
-      if (img._id) {
-        await updateImageType(img._id, type);
-      }
-
-      showToast("Updated");
-      fetchGallery();
-    } catch {
-      showToast("Update error");
-    }
-
-    setEditImg(null);
-  };
-
-  // ─────────────────────────────
   // FILTERS
   // ─────────────────────────────
-  const beforeImages = images.filter((i) => i.type === "before");
-  const afterImages = images.filter((i) => i.type === "after");
-  const unsorted = images.filter((i) => !i.type);
 
-
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
-
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
-  };
+const galleryImages = images;  
   return (
-    <div className="dash-container">
+    <div className={`dash-container ${theme}`}>
 
       <Sidebar
         theme={theme}
@@ -210,6 +178,8 @@ const GalleryAdmin: React.FC = () => {
                   fontWeight: 800,
                   fontSize: 22,
                   letterSpacing: "-0.01em",
+                  color: "var(--text)"
+
                 }}
               >
                 Photo Gallery
@@ -296,10 +266,10 @@ const GalleryAdmin: React.FC = () => {
           />
 
           {/* UNSORTED */}
-          {unsorted.length > 0 && (
+          {galleryImages.length > 0 && (
             <div style={{ marginTop: 50 }}>
               <h3 style={{ color: "#9ca3af" }}>
-                UNSORTED ({unsorted.length})
+                UNSORTED ({galleryImages.length})
               </h3>
 
               <div
@@ -310,12 +280,14 @@ const GalleryAdmin: React.FC = () => {
                   gap: 14,
                 }}
               >
-                {unsorted.map((img, i) => (
+                {galleryImages.map((img, i) => (
+                  console.log("Rendering ImageCard with URL:", `http://localhost:3001${img.url}`),
+
                   <ImageCard
                     key={img.url + i}
                     img={img}
                     onPreview={setPreviewImg}
-                    onEdit={setEditImg}
+                    
                     onDelete={setDeleteImg}
                   />
                 ))}
@@ -335,13 +307,7 @@ const GalleryAdmin: React.FC = () => {
         />
       )}
 
-      {editImg && (
-        <EditModal
-          img={editImg}
-          onClose={() => setEditImg(null)}
-          onSave={handleEditSave}
-        />
-      )}
+      
 
       {deleteImg && (
         <DeleteModal
@@ -399,3 +365,4 @@ const GalleryAdmin: React.FC = () => {
 };
 
 export default GalleryAdmin;
+

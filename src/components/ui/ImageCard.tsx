@@ -7,16 +7,13 @@ import  { ActionBtn } from "../../utils/ActionBtn";
 export const ImageCard = ({
   img,
   onDelete,
-  onEdit,
   onPreview,
 }: {
   img: GalleryImg;
   onDelete: (img: GalleryImg) => void;
-  onEdit: (img: GalleryImg) => void;
   onPreview: (img: GalleryImg) => void;
 }) => {
   const [hovered, setHovered] = useState(false);
-  const [deleting, setDeleting] = useState(false);
 
   return (
     <div
@@ -39,7 +36,7 @@ export const ImageCard = ({
       {/* Image */}
       <img
         src={`http://localhost:3001${img.url}`}
-        alt={img.filename || img.type || "Gallery"}
+        alt={img.filename  || "Gallery"}
         style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }}
       />
 
@@ -82,14 +79,7 @@ export const ImageCard = ({
             hoverBg="rgba(255,255,255,0.28)"
             onClick={() => onPreview(img)}
           />
-          <ActionBtn
-            label="Edit"
-            icon={<IconEdit />}
-            color="#1FD8C8"
-            bg="rgba(31,216,200,0.15)"
-            hoverBg="rgba(31,216,200,0.28)"
-            onClick={() => onEdit(img)}
-          />
+          
           <ActionBtn
             label="Delete"
             icon={<IconTrash />}
