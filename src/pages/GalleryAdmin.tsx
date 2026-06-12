@@ -1,4 +1,4 @@
-import React, { useState ,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import "./Dashboard.css";
 
 import { useGallery } from "../hooks/gallery/useGallery";
@@ -9,33 +9,31 @@ import { ImageCard } from "../components/ui/ImageCard";
 import { Sidebar } from "../components/layout/Sidebar";
 
 // modals
-import {
-  PreviewModal,
-  EditModal,
-  DeleteModal,
-} from "../components/ui/modals";
+import { PreviewModal,EditModal,DeleteModal} from "../components/ui/modals";
 
 // utils
 import { createCollage } from "../utils/collage";
 import type { GalleryImg } from "../types/gallery";
 
-
-
-const API_URL = "http://localhost:3001/api";
+//services
+import { getGallery,uploadGallery,deleteImage,updateImageType } from "../services/api/galleryService";
 
 const GalleryAdmin: React.FC = () => {
 
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
-
+  const [theme, setTheme] = useState<"dark" | "light">(
+    () => (localStorage.getItem("theme") as "dark" | "light") || "dark"
+  );
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
   useEffect(() => {
     document.body.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+
   }, [theme]);
 
-  
+
   // ─────────────────────────────
   // HOOK DATA
   // ─────────────────────────────
@@ -102,16 +100,7 @@ const GalleryAdmin: React.FC = () => {
       const formData = new FormData();
       formData.append("file", collageFile);
 
-      const res = await fetch(`${API_URL}/gallery/upload`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("jwt") || ""}`,
-        },
-        body: formData,
-      });
-
-      if (!res.ok) throw new Error();
-
+      await uploadGallery(collageFile);
       await fetchGallery();
 
       setBeforeFile(null);
@@ -179,12 +168,9 @@ const GalleryAdmin: React.FC = () => {
   // ─────────────────────────────
   // FILTERS
   // ─────────────────────────────
-  const beforeImages = images.filter((i) => i.type === "before");
-  const afterImages = images.filter((i) => i.type === "after");
+ 
   const unsorted = images.filter((i) => !i.type);
 
-
- 
   return (
     <div className={`dash-container ${theme}`}>
 
@@ -218,6 +204,8 @@ const GalleryAdmin: React.FC = () => {
                   fontWeight: 800,
                   fontSize: 22,
                   letterSpacing: "-0.01em",
+                  color: "var(--text)"
+
                 }}
               >
                 Photo Gallery
