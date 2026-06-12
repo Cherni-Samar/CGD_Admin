@@ -1,5 +1,5 @@
 import { IconGrid, IconStar, IconCar, IconCog, IconLogout } from "../../utils/icons";
-import "./Dashboard.css";
+import "../../pages/Dashboard.css";
 
 type Theme = "dark" | "light";
 const ThemeToggle = ({ theme, toggle }: { theme: Theme; toggle: () => void }) => (
@@ -13,7 +13,7 @@ const logout = () => {
   window.location.href = "/login";
 };
 
-const Sidebar = ({ theme, toggleTheme }: { theme: Theme; toggleTheme: () => void }) => (
+export const Sidebar = ({ theme, toggleTheme }: { theme: Theme; toggleTheme: () => void }) => (
   <div className="dash-sidebar">
     <div className="sidebar-logo">
       <div className="sidebar-logo-circle">CGD</div>

@@ -4,8 +4,9 @@ import "./Dashboard.css";
 import { useGallery } from "../hooks/gallery/useGallery";
 
 // components
-import {UploadZone} from "../components/ui/UploadZone";
-import {ImageCard} from "../components/ui/ImageCard";
+import { UploadZone } from "../components/ui/UploadZone";
+import { ImageCard } from "../components/ui/ImageCard";
+import { Sidebar } from "../components/layout/Sidebar";
 
 // modals
 import {
@@ -16,13 +17,9 @@ import {
 
 // utils
 import { createCollage } from "../utils/collage";
+import type { GalleryImg } from "../types/gallery";
 
-type GalleryImg = {
-  _id?: string;
-  url: string;
-  filename?: string;
-  type?: "before" | "after";
-};
+
 
 const API_URL = "http://localhost:3001/api";
 
@@ -174,25 +171,86 @@ const GalleryAdmin: React.FC = () => {
   const afterImages = images.filter((i) => i.type === "after");
   const unsorted = images.filter((i) => !i.type);
 
+
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  };
   return (
     <div className="dash-container">
+
+      <Sidebar
+        theme={theme}
+        toggleTheme={toggleTheme}
+      />
 
       {/* ───────────────────────────── */}
       {/* HEADER */}
       {/* ───────────────────────────── */}
       <div className="dash-main">
 
-        <div className="dash-content">
+        <div className="dash-content" style={{ maxWidth: 1320, margin: "0 auto" }}>
 
-          <h2>Gallery Admin</h2>
-          <p>Manage before & after car detailing images</p>
+          {/* Header */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-end",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: 12,
+              margin: "24px 0 28px",
+            }}
+          >
+            <div>
+              <h2
+                style={{
+                  margin: 0,
+                  fontWeight: 800,
+                  fontSize: 22,
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                Photo Gallery
+              </h2>
 
-          {/* ───────────────────────────── */}
-          {/* UPLOAD */}
-          {/* ───────────────────────────── */}
-          <div style={{ display: "flex", gap: 16 }}>
+              <p
+                style={{
+                  margin: "5px 0 0",
+                  color: "#6b7280",
+                  fontSize: 13,
+                }}
+              >
+                Manage your before & after car detailing photos
+              </p>
+            </div>
+
+            <div
+              style={{
+                padding: "5px 14px",
+                borderRadius: 8,
+                background: "#ffffff08",
+                border: "1px solid #ffffff10",
+                fontSize: 12,
+                color: "#9ca3af",
+              }}
+            >
+              {images.length} total photo{images.length !== 1 ? "s" : ""}
+            </div>
+          </div>
+
+          {/* Upload Section */}
+          <div
+            style={{
+              display: "flex",
+              gap: 16,
+              flexWrap: "wrap",
+              marginBottom: 24,
+            }}
+          >
             <UploadZone
-              label={beforeFile?.name || "Before"}
+              label={beforeFile?.name || "+ Add BEFORE photo"}
               color="#e85d3a"
               accent="#ffffff18"
               uploading={loading}
@@ -202,7 +260,7 @@ const GalleryAdmin: React.FC = () => {
             />
 
             <UploadZone
-              label={afterFile?.name || "After"}
+              label={afterFile?.name || "+ Add AFTER photo"}
               color="#1FD8C8"
               accent="#ffffff18"
               uploading={loading}
@@ -215,29 +273,55 @@ const GalleryAdmin: React.FC = () => {
           <button
             onClick={handleUpload}
             disabled={!beforeFile || !afterFile || loading}
+            style={{
+              padding: "12px 20px",
+              borderRadius: 10,
+              border: "none",
+              background: "#1FD8C8",
+              color: "#000",
+              fontWeight: 700,
+              cursor: "pointer",
+              marginBottom: 30,
+            }}
           >
             {loading ? "Processing..." : "Create Collage"}
           </button>
 
-          {/* ───────────────────────────── */}
+          <div
+            style={{
+              height: 1,
+              background: "#ffffff0a",
+              marginBottom: 32,
+            }}
+          />
+
           {/* UNSORTED */}
-          {/* ───────────────────────────── */}
-          <div style={{ marginTop: 30 }}>
-            <h3>Unsorted</h3>
+          {unsorted.length > 0 && (
+            <div style={{ marginTop: 50 }}>
+              <h3 style={{ color: "#9ca3af" }}>
+                UNSORTED ({unsorted.length})
+              </h3>
 
-            <div className="grid">
-              {unsorted.map((img) => (
-                <ImageCard
-                  key={img.url}
-                  img={img}
-                  onPreview={setPreviewImg}
-                  onEdit={setEditImg}
-                  onDelete={setDeleteImg}
-                />
-              ))}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns:
+                    "repeat(auto-fill,minmax(220px,1fr))",
+                  gap: 14,
+                }}
+              >
+                {unsorted.map((img, i) => (
+                  <ImageCard
+                    key={img.url + i}
+                    img={img}
+                    onPreview={setPreviewImg}
+                    onEdit={setEditImg}
+                    onDelete={setDeleteImg}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
-
+          )}
         </div>
       </div>
 
@@ -274,18 +358,31 @@ const GalleryAdmin: React.FC = () => {
         <div className="overlay">
           <div className="modal">
 
-            <h3>Confirm Upload</h3>
+            {/* HEADER */}
+            <div className="modal-header">
+              <h3>Confirm Upload</h3>
+              <p>Check your collage before uploading it</p>
+            </div>
 
-            <img
-              src={collagePreview}
-              style={{ width: "100%", borderRadius: 10 }}
-            />
+            {/* IMAGE */}
+            <div className="modal-body">
+              <img src={collagePreview} alt="collage preview" />
+            </div>
 
-            <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
-              <button onClick={cancelUpload}>Cancel</button>
+            {/* ACTIONS */}
+            <div className="modal-footer">
+              <button
+                className="btn btn-cancel"
+                onClick={cancelUpload}
+              >
+                Cancel
+              </button>
 
-              <button onClick={confirmUpload}>
-                Confirm
+              <button
+                className="btn btn-confirm"
+                onClick={confirmUpload}
+              >
+                Upload
               </button>
             </div>
 
