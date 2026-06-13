@@ -1,4 +1,3 @@
-import { useState } from "react";
 import type { GalleryImg } from "../../types/gallery";
 import { IconClose, IconTrash } from "../../utils/icons";
 

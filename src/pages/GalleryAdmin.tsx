@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "./Dashboard.css";
 
 import { useGallery } from "../hooks/gallery/useGallery";
@@ -16,29 +16,17 @@ import { createCollage } from "../utils/collage";
 import type { GalleryImg } from "../types/gallery";
 
 //services
-import { getGallery, uploadGallery, deleteImage, } from "../services/api/galleryService";
+import { useTheme } from "../state/ThemeContext";
+
 
 const GalleryAdmin: React.FC = () => {
 
-  const [theme, setTheme] = useState<"dark" | "light">(
-    () => (localStorage.getItem("theme") as "dark" | "light") || "dark"
-  );
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
-  };
-
-  useEffect(() => {
-    document.body.setAttribute("data-theme", theme);
-    localStorage.setItem("theme", theme);
-
-  }, [theme]);
-
+const { theme } = useTheme();
 
   // ─────────────────────────────
   // HOOK DATA
   // ─────────────────────────────
-  const { images, fetchGallery, deleteImage } =
-    useGallery();
+ const { images, fetchGallery, deleteImage, uploadGallery } = useGallery();
 
   // ─────────────────────────────
   // LOCAL STATE (UI ONLY)
@@ -149,8 +137,7 @@ const galleryImages = images;
     <div className={`dash-container ${theme}`}>
 
       <Sidebar
-        theme={theme}
-        toggleTheme={toggleTheme}
+        
       />
 
       {/* ───────────────────────────── */}

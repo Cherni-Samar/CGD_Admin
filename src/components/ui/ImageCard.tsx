@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { GalleryImg } from "../../types/gallery";
-import { IconEdit, IconEye, IconTrash } from "../../utils/icons";
+import { IconEye, IconTrash } from "../../utils/icons";
 import  { ActionBtn } from "../../utils/ActionBtn";
  
 

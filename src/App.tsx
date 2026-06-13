@@ -4,9 +4,11 @@ import Login from './pages/Login';
 import Quotes from './pages/Quotes';
 import AuthGuard from './components/AuthGuard';
 import GalleryAdmin from './pages/GalleryAdmin'; // ⬅️ ajoute cet import
+import { ThemeProvider } from './state/ThemeContext';
 
 const App: React.FC = () => {
   return (
+    <ThemeProvider>
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
@@ -34,6 +36,7 @@ const App: React.FC = () => {
         <Route path="*" element={<Navigate to="/quotes" />} />
       </Routes>
     </BrowserRouter>
+    </ThemeProvider>
   );
 };
 

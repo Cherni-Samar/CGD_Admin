@@ -340,12 +340,12 @@ const QuotesDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem("cgd-theme") as Theme) || "dark"
+    () => (localStorage.getItem("theme") as Theme) || "dark"
   );
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("cgd-theme", theme);
+    localStorage.setItem("theme", theme);
   }, [theme]);
 
   const toggleTheme = () => setTheme((t) => (t === "dark" ? "light" : "dark"));

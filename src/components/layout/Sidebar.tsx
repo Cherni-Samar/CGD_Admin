@@ -1,8 +1,8 @@
 import { IconGrid, IconStar, IconCar, IconCog, IconLogout } from "../../utils/icons";
 import "../../pages/Dashboard.css";
+import { useTheme } from "../../state/ThemeContext";
 
-type Theme = "dark" | "light";
-const ThemeToggle = ({ theme, toggle }: { theme: Theme; toggle: () => void }) => (
+const ThemeToggle = ({ toggle }: {toggle: () => void }) => (
   <button className="theme-toggle" onClick={toggle} aria-label="Toggle theme">
     <div className="theme-toggle-thumb" />
   </button>
@@ -13,7 +13,9 @@ const logout = () => {
   window.location.href = "/login";
 };
 
-export const Sidebar = ({ theme, toggleTheme }: { theme: Theme; toggleTheme: () => void }) => (
+export const Sidebar = () => {
+  const { theme, toggleTheme } = useTheme();
+  return (
   <div className="dash-sidebar">
     <div className="sidebar-logo">
       <div className="sidebar-logo-circle">CGD</div>
@@ -39,11 +41,12 @@ export const Sidebar = ({ theme, toggleTheme }: { theme: Theme; toggleTheme: () 
     <div className="sidebar-footer">
       <div className="sidebar-theme-row">
         <span className="sidebar-theme-label">{theme === "dark" ? "Dark mode" : "Light mode"}</span>
-        <ThemeToggle theme={theme} toggle={toggleTheme} />
+        <ThemeToggle toggle={toggleTheme} />
       </div>
       <button className="nav-item nav-item-logout" onClick={logout}>
         <IconLogout /> Logout
       </button>
     </div>
   </div>
-);
+)
+};
