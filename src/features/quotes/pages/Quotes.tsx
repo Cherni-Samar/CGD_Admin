@@ -5,6 +5,8 @@ import TopBar from "../components/TopBar";
 import StatCard from "../components/StatCard";
 import QuotesTable from "../components/QuoteTable";
 import "../../../shared/styles/Dashboard.css";
+import { IconSearch } from "../../../shared/utils/icons";
+
 
 export default function QuotesAdmin() {
   const { quotes, loading, fetchQuotes, changeStatus, removeQuote } =
@@ -32,11 +34,22 @@ export default function QuotesAdmin() {
         <TopBar quoteCount={total} onRefresh={fetchQuotes} />
 
         <div className="dash-content">
-          <h1>Quotes Admin</h1>
+          <div className="dash-welcome">
+            <div>
+              <h1>
+                Welcome back, <span>Admin</span>
+              </h1>
+              <p>
+                Here's what's happening with California Golden Detailers today.
+              </p>
+            </div>
+          </div>
 
           {/* SEARCH */}
           <div className="table-search">
-            <span className="search-icon">🔍</span>
+            <span className="search-icon-svg">
+              <IconSearch />
+            </span>
 
             <input
               placeholder="Search quotes..."

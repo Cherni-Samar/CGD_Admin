@@ -68,3 +68,21 @@ export const IconRefresh = () => (
       stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
+
+export const IconSearch = () => (
+  <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+    <circle
+      cx="5.5"
+      cy="5.5"
+      r="4"
+      stroke="currentColor"
+      strokeWidth="1.4"
+    />
+    <path
+      d="M9 9l3 3"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+    />
+  </svg>
+);

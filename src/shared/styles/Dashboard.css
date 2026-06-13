@@ -322,50 +322,21 @@ html, body, #root {
 }
 
 .table-search {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  display: flex; align-items: center; gap: .5rem;
   background: var(--surface2);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 0.35rem 0.7rem;
-  transition: 0.2s ease;
+  border-radius: 9px; padding: .33rem .75rem;
+  transition: border-color .2s;
 }
-
-.table-search:focus-within {
-  border-color: var(--teal);
-  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.12);
-}
-
+.table-search:focus-within { border-color: var(--teal); }
+.search-icon-svg { color: var(--text3); display: flex; align-items: center; }
 .table-search input {
-  background: transparent;
-  border: none;
-  outline: none;
-  color: var(--text);
-  font-size: 0.78rem;
-  width: 160px;
+  background: none; border: none; outline: none;
+  color: var(--text); font-family: 'Montserrat', sans-serif;
+  font-size: .76rem; width: 155px;
 }
+.table-search input::placeholder { color: var(--text3); }
 
-.table-search input:focus {
-  width: 200px;
-}
-
-.search-icon {
-  font-size: 12px;
-  opacity: 0.6;
-}
-
-.clear-btn {
-  background: transparent;
-  border: none;
-  color: var(--text3);
-  cursor: pointer;
-  font-size: 12px;
-}
-
-.clear-btn:hover {
-  color: var(--text);
-}
 .dash-table { width: 100%; border-collapse: collapse; }
 .dash-table th {
   padding: .78rem 1.15rem; text-align: left;
@@ -410,7 +381,28 @@ html, body, #root {
 .status-refused   { background: rgba(224,92,92,0.1);   color: var(--red);   border: 1px solid rgba(224,92,92,0.22); }
 
 /* ══ ACTIONS ══ */
-.action-btns { display: flex; gap: .45rem; align-items: center; }
+.action-btns {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+
+  padding: 0.25rem;
+  border-radius: 10px;
+
+  background: var(--surface2);
+  border: 1px solid var(--border);
+
+  transition: all 0.2s ease;
+}
+.action-btns:hover {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px var(--teal-soft);
+}
+.action-btns select,
+.action-btns button {
+  height: 30px;
+  font-size: 0.72rem;
+}
 .select-status {
   background: var(--surface2);
   border: 1px solid var(--border);
@@ -423,15 +415,52 @@ html, body, #root {
 .select-status option { background: var(--surface); color: var(--text); }
 
 .btn-delete {
-  display: flex; align-items: center; justify-content: center;
-  width: 30px; height: 30px;
-  border-radius: 8px;
-  border: 1px solid rgba(224,92,92,0.2);
-  color: var(--red); background: transparent;
-  cursor: pointer; transition: all .2s;
-}
-.btn-delete:hover { background: rgba(224,92,92,0.08); border-color: rgba(224,92,92,0.4); }
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
+  width: 60px;
+  height: 32px;
+
+  border-radius: 10px;
+
+  background: rgba(224, 92, 92, 0.06);
+  border: 1px solid rgba(224, 92, 92, 0.25);
+
+  color: var(--red);
+
+  cursor: pointer;
+  transition: all 0.25s ease;
+
+  position: relative;
+  overflow: hidden;
+}
+.btn-delete:hover {
+  background: rgba(224, 92, 92, 0.12);
+  border-color: rgba(224, 92, 92, 0.5);
+
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(224, 92, 92, 0.18);
+}
+.btn-delete:active {
+  transform: scale(0.95);
+}
+.btn-delete::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at center,
+    rgba(224, 92, 92, 0.25),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.btn-delete:hover::after {
+  opacity: 1;
+}
 /* ══ EMPTY / LOADING ══ */
 .empty-state { text-align: center; padding: 3.5rem 2rem; color: var(--text2); }
 .empty-state p { font-size: .84rem; line-height: 1.6; }
