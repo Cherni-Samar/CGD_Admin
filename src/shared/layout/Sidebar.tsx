@@ -1,6 +1,6 @@
-import { IconGrid, IconStar, IconCar, IconCog, IconLogout } from "../../utils/icons";
-import "../../pages/Dashboard.css";
-import { useTheme } from "../../state/ThemeContext";
+import { IconGrid, IconStar, IconCar, IconCog, IconLogout } from "../../shared/utils/icons";
+import "../styles/Dashboard.css";
+import { useTheme } from ".././../state/ThemeContext";
 
 const ThemeToggle = ({ toggle }: {toggle: () => void }) => (
   <button className="theme-toggle" onClick={toggle} aria-label="Toggle theme">

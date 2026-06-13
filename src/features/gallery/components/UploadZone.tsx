@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { IconUpload } from "../../utils/icons";
+import { IconUpload } from "../../../shared/utils/icons";
 export const UploadZone = ({
   label,
   color,

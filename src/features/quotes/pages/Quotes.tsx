@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import "./Dashboard.css";
+import "../../../shared/styles/Dashboard.css";
 
 // --- Types ---
 interface Quote {
@@ -15,7 +15,6 @@ interface Quote {
 }
 
 type Theme = "dark" | "light";
-type GalleryImg = { url: string; filename?: string };
 
 const API_URL = "http://localhost:3001/api";
 
@@ -26,7 +25,6 @@ const logout = () => {
 
 // --- THEME TOGGLE ---
 const ThemeToggle = ({
-  theme,
   toggle,
 }: {
   theme: Theme;
@@ -78,44 +76,8 @@ const IconGrid = () => (
     />
   </svg>
 );
-const IconDoc = () => (
-  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-    <rect
-      x="2"
-      y="1"
-      width="10"
-      height="12"
-      rx="1.5"
-      stroke="currentColor"
-      strokeWidth="1.3"
-    />
-    <path
-      d="M4.5 5h5M4.5 7.5h5M4.5 10h3"
-      stroke="currentColor"
-      strokeWidth="1.2"
-      strokeLinecap="round"
-    />
-  </svg>
-);
-const IconCal = () => (
-  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-    <rect
-      x="1.5"
-      y="2.5"
-      width="11"
-      height="10"
-      rx="1.5"
-      stroke="currentColor"
-      strokeWidth="1.3"
-    />
-    <path
-      d="M1.5 6h11M4.5 1v3M9.5 1v3"
-      stroke="currentColor"
-      strokeWidth="1.3"
-      strokeLinecap="round"
-    />
-  </svg>
-);
+
+
 const IconCar = () => (
   <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
     <path

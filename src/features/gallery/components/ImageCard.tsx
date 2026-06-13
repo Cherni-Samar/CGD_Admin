@@ -1,7 +1,7 @@
 import { useState } from "react";
-import type { GalleryImg } from "../../types/gallery";
-import { IconEye, IconTrash } from "../../utils/icons";
-import  { ActionBtn } from "../../utils/ActionBtn";
+import type { GalleryImg } from "../types/gallery";
+import { IconEye, IconTrash } from "../../../shared/utils/icons";
+import  { ActionBtn } from "../../../shared/utils/ActionBtn";
  
 
 export const ImageCard = ({

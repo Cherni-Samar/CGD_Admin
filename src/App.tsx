@@ -1,9 +1,9 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import Login from './pages/Login';
-import Quotes from './pages/Quotes';
-import AuthGuard from './components/AuthGuard';
-import GalleryAdmin from './pages/GalleryAdmin'; // ⬅️ ajoute cet import
+import Login from '../src/features/auth/Login';
+import Quotes from './features/quotes/pages/Quotes';
+import AuthGuard from '../src/features/auth/AuthGuard';
+import GalleryAdmin from './features/gallery/pages/GalleryAdmin'; // ⬅️ ajoute cet import
 import { ThemeProvider } from './state/ThemeContext';
 
 const App: React.FC = () => {
