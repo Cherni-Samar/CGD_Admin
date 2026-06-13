@@ -1,22 +1,22 @@
 import React, { useState } from "react";
-import "./Dashboard.css";
+import "../../../shared/styles/Dashboard.css";
 
-import { useGallery } from "../hooks/gallery/useGallery";
+import { useGallery } from "../hooks/useGallery";
 
 // components
-import { UploadZone } from "../components/ui/UploadZone";
-import { ImageCard } from "../components/ui/ImageCard";
-import { Sidebar } from "../components/layout/Sidebar";
+import { UploadZone } from "../components/UploadZone";
+import { ImageCard } from "../components/ImageCard";
+import { Sidebar } from "../../../shared/layout/Sidebar";
 
 // modals
-import { PreviewModal, DeleteModal } from "../components/ui/modals";
+import { PreviewModal, DeleteModal } from "../components/modals";
 
 // utils
-import { createCollage } from "../utils/collage";
+import { createCollage } from "../hooks/collage";
 import type { GalleryImg } from "../types/gallery";
 
 //services
-import { useTheme } from "../state/ThemeContext";
+import { useTheme } from "../../../state/ThemeContext";
 
 
 const GalleryAdmin: React.FC = () => {

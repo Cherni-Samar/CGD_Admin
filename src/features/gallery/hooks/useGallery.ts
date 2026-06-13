@@ -3,7 +3,7 @@ import {
   getGallery,
   deleteImage,
   uploadGallery,
-} from "../../services/api/galleryService";
+} from "../services/galleryService";
 
 export const useGallery = () => {
 const [images, setImages] = useState<any[]>([]);

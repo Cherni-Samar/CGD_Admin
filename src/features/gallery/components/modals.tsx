@@ -1,5 +1,5 @@
-import type { GalleryImg } from "../../types/gallery";
-import { IconClose, IconTrash } from "../../utils/icons";
+import type { GalleryImg } from "../types/gallery";
+import { IconClose, IconTrash } from "../../../shared/utils/icons";
 
 export const PreviewModal = ({ img, onClose }: { img: GalleryImg; onClose: () => void }) => (
   <div
