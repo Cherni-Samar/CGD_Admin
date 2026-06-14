@@ -5,7 +5,7 @@ const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const token = localStorage.getItem('jwt');
   if (!token) {
     // Pas connecté → retourne une redirection
-    return <Navigate to="/api/login" replace />;
+    return <Navigate to="/login" replace />;
   }
   return <>{children}</>;
 };
